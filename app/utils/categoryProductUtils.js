@@ -1,4 +1,4 @@
-import prisma from "../prisma.js";
+import prisma from "./prisma.js";
 
 async function connectProductToCategories(product, category_id) {
   const categoriesArray = Array.isArray(category_id)

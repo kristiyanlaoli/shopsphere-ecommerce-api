@@ -1,6 +1,6 @@
 import { Router } from "express";
-import prisma from "../prisma.js";
-import validateProductId from "../middleware.js";
+import prisma from "../utils/prisma.js";
+import validateProductId from "../middlewares/productMiddleware.js";
 import connectProductToCategories from "../utils/categoryProductUtils.js";
 const router = Router();
 
@@ -16,9 +16,7 @@ router.get("/products/:id", validateProductId, async (req, res) => {
   const product = await prisma.product.findUnique({
     where: { id: productId },
   });
-  product
-    ? res.json(product)
-    : res.status(404).json({ message: "Product not found" });
+  return res.json(product);
 });
 
 // Add new product to data
