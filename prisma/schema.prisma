@@ -9,3 +9,44 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+// products.model.prisma
+model Product {
+  id          Int       @id @default(autoincrement())
+  name        String
+  price       Float
+  description String
+  image       String
+  category_id CategoryProduct[]
+  inventory   Int
+  rating      Float?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("products")
+}
+
+// categories.model.prisma
+model Category {
+  id       Int      @id @default(autoincrement())
+  name     String
+  products CategoryProduct[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("categories")
+}
+
+// category_product.model.prisma
+model CategoryProduct {
+  product_id  Int
+  category_id Int
+
+  product     Product @relation(fields: [product_id], references: [id])
+  category    Category @relation(fields: [category_id], references: [id])
+
+  @@id([product_id, category_id]) 
+  @@map("category_product")
+
+}
+
