@@ -7,5 +7,16 @@
   },
   "devDependencies": {
     "prisma": "^5.9.1"
-  }
+  },
+  "scripts": {
+    "start": "npx nodemon server.js"
+  },
+  "name": "ecommerce-api",
+  "version": "1.0.0",
+  "main": "app.js",
+  "keywords": [],
+  "type": "module",
+  "author": "",
+  "license": "ISC",
+  "description": ""
 }
