@@ -11,7 +11,7 @@ datasource db {
 }
 
 model Product {
-  id          Int       @id @default(autoincrement())
+  id          Int               @id @default(autoincrement())
   name        String
   price       Float
   description String
@@ -19,18 +19,18 @@ model Product {
   category_id CategoryProduct[]
   inventory   Int
   rating      Float?
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at  DateTime          @default(now())
+  updated_at  DateTime          @updatedAt
 
   @@map("products")
 }
 
 model Category {
-  id       Int      @id @default(autoincrement())
-  name     String
-  products CategoryProduct[]
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id         Int               @id @default(autoincrement())
+  name       String
+  products   CategoryProduct[]
+  created_at DateTime          @default(now())
+  updated_at DateTime          @updatedAt
 
   @@map("categories")
 }
@@ -39,11 +39,39 @@ model CategoryProduct {
   product_id  Int
   category_id Int
 
-  product     Product @relation(fields: [product_id], references: [id])
-  category    Category @relation(fields: [category_id], references: [id])
+  product  Product  @relation(fields: [product_id], references: [id])
+  category Category @relation(fields: [category_id], references: [id])
 
-  @@id([product_id, category_id]) 
+  @@id([product_id, category_id])
   @@map("category_product")
-
 }
 
+model Cart {
+  id        Int    @id @default(autoincrement())
+  quantity  Int?
+  productID Int?
+  total     Float? @db.Float
+
+  @@index([productID], map: "productID")
+  @@map("carts")
+}
+
+model Order {
+  id         Int          @id @default(autoincrement())
+  total      Float
+  created_at DateTime?    @default(now())
+  items      OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id         Int    @id @default(autoincrement())
+  order_id   Int
+  product_id Int
+  quantity   Int
+  total      Float
+
+  order      Order @relation(fields: [order_id], references: [id])
+  @@map("order_items")
+}
