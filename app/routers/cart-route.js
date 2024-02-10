@@ -7,16 +7,21 @@ import {
 } from "../middlewares/authTokenAndPermission.js";
 const router = Router();
 
+//add product to cart
 router.post(
   "/cart",
   authToken,
   authorizePermission(Permission.ADD_CART),
   async (req, res) => {
+    const user_id = req.user.id;
     const { product_id, quantity } = req.body;
 
     // check if product is already in cart
     const checkItem = await prisma.cart.findFirst({
-      where: { productID: product_id },
+      where: {
+        productID: product_id,
+        user_id: user_id,
+      },
     });
 
     // check if product exists
@@ -34,6 +39,7 @@ router.post(
           quantity: cartQuantity,
           productID: product_id,
           total: totalQuantity,
+          user_id,
         },
       });
       return res.json({ message: "Product added to cart 1", cartItem });
@@ -43,6 +49,7 @@ router.post(
           quantity: quantity,
           productID: product_id,
           total: checkProduct.price * quantity,
+          user_id,
         },
       });
       res.json({ message: "Product added to cart 2", cartItem });
@@ -57,7 +64,10 @@ router.get(
   authorizePermission(Permission.BROWSE_CARTS),
   async (req, res) => {
     try {
-      const cart = await prisma.cart.findMany();
+      const user_id = req.user.id;
+      const cart = await prisma.cart.findMany({
+        where: { user_id },
+      });
 
       if (!cart) {
         return res.json({ message: "cart is empty" });
@@ -79,8 +89,11 @@ router.delete(
   authToken,
   authorizePermission(Permission.DELETE_CART),
   async (req, res) => {
+    const user_id = req.user.id;
     try {
-      await prisma.cart.deleteMany({});
+      await prisma.cart.deleteMany({
+        where: { user_id: user_id },
+      });
 
       res.json({ message: "Cart emptied" });
     } catch (error) {
@@ -97,10 +110,13 @@ router.delete(
   authorizePermission(Permission.DELETE_CART),
   async (req, res) => {
     const cartId = parseInt(req.params.cartId);
-
+    const user_id = req.user.id;
     try {
       await prisma.cart.delete({
-        where: { id: cartId },
+        where: {
+          id: cartId,
+          user_id: user_id,
+        },
       });
 
       res.json({ message: "Product removed from cart" });
