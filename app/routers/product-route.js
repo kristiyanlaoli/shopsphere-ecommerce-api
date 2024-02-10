@@ -1,27 +1,28 @@
 import { Router } from "express";
 import prisma from "../utils/prisma.js";
-import validateProductId from "../middlewares/productMiddleware.js";
 import connectProductToCategories from "../utils/categoryProductUtils.js";
 import { Permission } from "../utils/authorization.js";
+import validateProduct from "../utils/validateProduct.js";
 import {
   authToken,
   authorizePermission,
-} from "../middlewares/authTokenAndPermission.js";
+  checkSeller,
+  validateProductId,
+} from "../middlewares/middlewares.js";
+
 const router = Router();
 
 // Get all product
 router.get("/products", async (req, res) => {
   const products = await prisma.product.findMany();
-  res.json(products);
+  return res.status(200).json(products);
 });
 
 // Get product by id
 router.get("/products/:id", validateProductId, async (req, res) => {
   const { productId } = req;
-  const product = await prisma.product.findUnique({
-    where: { id: productId },
-  });
-  return res.json(product);
+  const product = await prisma.product.findUnique({ where: { id: productId } });
+  return res.status(200).json(product);
 });
 
 // Add new product to data
@@ -30,121 +31,82 @@ router.post(
   authToken,
   authorizePermission(Permission.ADD_PRODUCT),
   async (req, res) => {
-    const { name, price, description, image, category_id, inventory, rating } =
-      req.body;
-    const seller_id = req.user.id;
+    try {
+      //validate product
+      const { category_id, ...productData } = validateProduct(req.body);
+      const product = await prisma.product.create({
+        data: { ...productData, seller_id: req.user.id },
+      });
 
-    if (
-      !name ||
-      !price ||
-      !description ||
-      !image ||
-      !category_id ||
-      !inventory
-    ) {
-      return res.status(400).json({ message: "title is required" });
+      // connect category_id from product to category via categoryProduct_pivot_tabel:
+      await connectProductToCategories(product, category_id);
+
+      return res
+        .status(201)
+        .json({ message: "Product has been created", product });
+    } catch (error) {
+      return res.status(400).json({ message: error.message });
     }
-
-    const product = await prisma.product.create({
-      data: {
-        name,
-        price,
-        description,
-        image,
-        inventory,
-        rating,
-        seller_id,
-      },
-    });
-
-    // connect category_id from product to category via categoryProduct_pivot_tabel:
-    connectProductToCategories(product, category_id);
-
-    res.json({ message: "Product has been created", product });
   }
 );
 
-//update product
+// Update product
 router.put(
   "/products/:id",
   validateProductId,
   authToken,
   authorizePermission(Permission.EDIT_PRODUCT),
+  checkSeller,
   async (req, res) => {
-    //check if user is authorized to update product
-    const { productId } = req;
-    const product = await prisma.product.findUnique({
-      where: { id: productId },
-    });
-    const seller_id = req.user.id;
-    if (product.seller_id !== seller_id) {
-      return res.status(401).json({ message: "You are not authorized" });
+    try {
+      //validate product
+      const { category_id, ...productData } = validateProduct(req.body);
+
+      //update product
+      const { productId } = req;
+      const updatedproduct = await prisma.product.update({
+        where: { id: productId },
+        data: { ...productData, seller_id: req.user.id },
+      });
+
+      // delete last category_id of product from categoryProduct_pivot_tabel
+      await prisma.categoryProduct.deleteMany({
+        where: { product_id: productId },
+      });
+
+      // connect new category_id from product to category via categoryProduct_pivot_tabel:
+      await connectProductToCategories(updatedproduct, category_id);
+
+      return res.status(200).json({
+        message: "product has been updated",
+        product: updatedproduct,
+      });
+    } catch (error) {
+      return res.status(400).json({ message: error.message });
     }
-    //update product
-    const { name, price, description, image, category_id, inventory, rating } =
-      req.body;
-    if (
-      !name ||
-      !price ||
-      !description ||
-      !image ||
-      !category_id ||
-      !inventory
-    ) {
-      return res.status(400).json({ message: "title is required" });
-    }
-
-    const updatedproduct = await prisma.product.update({
-      where: { id: productId },
-      data: {
-        name,
-        price,
-        description,
-        image,
-        inventory,
-        rating,
-        seller_id,
-      },
-    });
-
-    // connect category_id from product to category via categoryProduct_pivot_tabel:
-    //// delete category_id of product from categoryProduct_pivot_tabel
-    await prisma.categoryProduct.deleteMany({
-      where: { product_id: productId },
-    });
-    //// add new category_id of product to categoryProduct_pivot_tabel
-    connectProductToCategories(updatedproduct, category_id);
-
-    res.json({ message: "product has been updated", product: updatedproduct });
   }
 );
 
-//delete product
+// Delete product
 router.delete(
   "/products/:id",
   validateProductId,
   authToken,
   authorizePermission(Permission.DELETE_PRODUCT),
+  checkSeller,
   async (req, res) => {
-    //Check if user is the seller of the product
-    const { productId } = req;
-    const product = await prisma.product.findUnique({
-      where: { id: productId },
-    });
-    const seller_id = req.user.id;
-    if (product.seller_id !== seller_id) {
-      return res.status(401).json({ message: "You are not authorized" });
-    }
     // delete category_id of product from categoryProduct_pivot_tabel
+    const { productId } = req;
     await prisma.categoryProduct.deleteMany({
       where: { product_id: productId },
     });
-
     const deletedProduct = await prisma.product.delete({
       where: { id: productId },
     });
 
-    res.json({ message: "Product has been deleted", product: deletedProduct });
+    return res
+      .status(200)
+      .json({ message: "Product has been deleted", product: deletedProduct });
   }
 );
 

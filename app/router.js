@@ -11,7 +11,7 @@ router.use("/api", productRouters);
 router.use("/api", searchRouters);
 router.use("/api", cartRouters);
 router.use("/api", orderRouters);
-router.use("/api", tokenRouters);
+router.use("/api", loginRouters);
 router.use("/api", sigupRouters);
 
 export default router;

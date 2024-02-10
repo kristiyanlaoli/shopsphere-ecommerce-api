@@ -1,10 +1,7 @@
 import { Router } from "express";
 import prisma from "../utils/prisma.js";
 import { Permission } from "../utils/authorization.js";
-import {
-  authToken,
-  authorizePermission,
-} from "../middlewares/authTokenAndPermission.js";
+import { authToken, authorizePermission } from "../middlewares/middlewares.js";
 const router = Router();
 
 //add product to cart

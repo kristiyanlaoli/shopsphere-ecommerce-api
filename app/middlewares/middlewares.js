@@ -40,8 +40,6 @@ export const authToken = async (req, res, next) => {
   // Append user to request
   req.user = validToken.user;
 
-  console.log("User=>>>>", req.user);
-
   next();
 };
 
@@ -62,10 +60,10 @@ export const authorizePermission = (permission) => {
       (record) => record.permission.name
     );
 
-    console.log("permissionsRecords", permissionRecords);
-    console.log("req.user.role_id ", req.user.role_id);
-    console.log("looking for permission", permission);
-    console.log("in permissions", permissions);
+    // console.log("permissionsRecords", permissionRecords);
+    // console.log("req.user.role_id ", req.user.role_id);
+    // console.log("looking for permission", permission);
+    // console.log("in permissions", permissions);
 
     if (!permissions.includes(permission)) {
       return res.status(403).json({
@@ -75,4 +73,35 @@ export const authorizePermission = (permission) => {
 
     next();
   };
+};
+
+export async function validateProductId(req, res, next) {
+  const productId = Number(req.params.id);
+
+  if (isNaN(productId)) {
+    return res.status(400).json({ message: "id must be a number" });
+  }
+
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+  });
+
+  if (!product) {
+    return res.status(404).json({ message: "Product not found" });
+  }
+
+  req.productId = productId;
+
+  next();
+}
+
+export const checkSeller = async (req, res, next) => {
+  const { productId } = req;
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+  });
+  if (product.seller_id !== req.user.id) {
+    return res.status(401).json({ message: "You are not authorized vchs" });
+  }
+  next();
 };
