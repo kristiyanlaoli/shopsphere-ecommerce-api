@@ -26,3 +26,22 @@ const validateTokenRequest = (req, res, next) => {
 };
 
 export default validateTokenRequest;
+
+export const validateCartRequest = (req, res, next) => {
+  const product_id = Number(req.body.product_id);
+  const quantity = Number(req.body.quantity);
+  const errors = {};
+
+  if (!product_id) {
+    errors.product_id = "Must be a valid product_id";
+  }
+
+  if (!quantity) {
+    errors.quantity = "Must be a valid quantity";
+  }
+
+  if (Object.keys(errors).length > 0) {
+    return res.status(422).json({ errors });
+  }
+  next();
+};
