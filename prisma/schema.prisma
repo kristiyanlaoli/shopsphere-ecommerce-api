@@ -19,8 +19,11 @@ model Product {
   category_id CategoryProduct[]
   inventory   Int
   rating      Float?
+  seller_id   Int
   created_at  DateTime          @default(now())
   updated_at  DateTime          @updatedAt
+
+  user User @relation(fields: [seller_id], references: [id])
 
   @@map("products")
 }
@@ -48,31 +51,35 @@ model CategoryProduct {
 
 model Cart {
   id        Int    @id @default(autoincrement())
+  user_id   Int
   quantity  Int?
   productID Int?
   total     Float? @db.Float
+
+  user User @relation(fields: [user_id], references: [id])
 
   @@index([productID], map: "productID")
   @@map("carts")
 }
 
 model Order {
-  id         Int          @id @default(autoincrement())
+  id         Int         @id @default(autoincrement())
   total      Float
-  created_at DateTime?    @default(now())
+  created_at DateTime?   @default(now())
   items      OrderItem[]
 
   @@map("orders")
 }
 
 model OrderItem {
-  id         Int    @id @default(autoincrement())
+  id         Int   @id @default(autoincrement())
   order_id   Int
   product_id Int
   quantity   Int
   total      Float
 
-  order      Order @relation(fields: [order_id], references: [id])
+  order Order @relation(fields: [order_id], references: [id])
+
   @@map("order_items")
 }
 
@@ -86,8 +93,10 @@ model User {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  tokens Token[]
-  role   Role    @relation(fields: [role_id], references: [id])
+  tokens   Token[]
+  products Product[]
+  carts    Cart[]
+  role     Role      @relation(fields: [role_id], references: [id])
 
   @@map("users")
 }
