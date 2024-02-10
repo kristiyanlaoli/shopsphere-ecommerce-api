@@ -6,7 +6,7 @@ import crypto from "crypto";
 
 const router = Router();
 
-router.post("/token", validateTokenRequest, async (req, res) => {
+router.post("/login", validateTokenRequest, async (req, res) => {
   //Check Email
   const user = await prisma.user.findUnique({
     where: {
