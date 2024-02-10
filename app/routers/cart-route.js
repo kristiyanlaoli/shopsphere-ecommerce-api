@@ -46,7 +46,7 @@ router.post(
           user_id,
         },
       });
-      return res.json({ message: "Product added to cart 1", cartItem });
+      return res.json({ message: "Product added to cart", cartItem });
     } else {
       const cartItem = await prisma.cart.create({
         data: {
@@ -56,7 +56,7 @@ router.post(
           user_id,
         },
       });
-      res.json({ message: "Product added to cart 2", cartItem });
+      res.json({ message: "Product added to cart", cartItem });
     }
   }
 );
@@ -74,7 +74,7 @@ router.get(
       });
 
       if (!cart) {
-        return res.json({ message: "cart is empty" });
+        return res.json({ message: "Cart is empty" });
       }
 
       const total = cart.reduce((sum, item) => sum + item.total, 0);
@@ -125,8 +125,7 @@ router.delete(
 
       res.json({ message: "Product removed from cart" });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Internal Server Error" });
+      res.status(404).json({ message: "Product not found in cart" });
     }
   }
 );
