@@ -101,7 +101,7 @@ export const checkSeller = async (req, res, next) => {
     where: { id: productId },
   });
   if (product.seller_id !== req.user.id) {
-    return res.status(401).json({ message: "You are not authorized vchs" });
+    return res.status(401).json({ message: "You are not authorized" });
   }
   next();
 };

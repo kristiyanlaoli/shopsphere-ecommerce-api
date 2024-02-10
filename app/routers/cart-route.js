@@ -11,52 +11,56 @@ router.post(
   authToken,
   authorizePermission(Permission.ADD_CART),
   validateCartRequest,
-  async (req, res) => {
-    const user_id = req.user.id;
-    const product_id = Number(req.body.product_id);
-    const quantity = Number(req.body.quantity);
+  async (req, res, next) => {
+    try {
+      const user_id = req.user.id;
+      const product_id = Number(req.body.product_id);
+      const quantity = Number(req.body.quantity);
 
-    // check if product is already in cart
-    const checkItem = await prisma.cart.findFirst({
-      where: {
-        productID: product_id,
-        user_id: user_id,
-      },
-    });
-
-    // check if product exists
-    const checkProduct = await prisma.product.findFirst({
-      where: { id: product_id },
-    });
-
-    if (!checkProduct) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-
-    if (checkItem) {
-      const cartQuantity = checkItem.quantity + quantity;
-      const totalQuantity = checkItem.total + checkProduct.price * quantity;
-
-      const cartItem = await prisma.cart.update({
-        where: { id: checkItem.id },
-        data: {
-          quantity: cartQuantity,
+      // check if product is already in cart
+      const checkItem = await prisma.cart.findFirst({
+        where: {
           productID: product_id,
-          total: totalQuantity,
-          user_id,
+          user_id: user_id,
         },
       });
-      return res.json({ message: "Product added to cart", cartItem });
-    } else {
-      const cartItem = await prisma.cart.create({
-        data: {
-          quantity: quantity,
-          productID: product_id,
-          total: checkProduct.price * quantity,
-          user_id,
-        },
+
+      // check if product exists
+      const checkProduct = await prisma.product.findFirst({
+        where: { id: product_id },
       });
-      res.json({ message: "Product added to cart", cartItem });
+
+      if (!checkProduct) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+
+      if (checkItem) {
+        const cartQuantity = checkItem.quantity + quantity;
+        const totalQuantity = checkItem.total + checkProduct.price * quantity;
+
+        const cartItem = await prisma.cart.update({
+          where: { id: checkItem.id },
+          data: {
+            quantity: cartQuantity,
+            productID: product_id,
+            total: totalQuantity,
+            user_id,
+          },
+        });
+        return res.json({ message: "Product added to cart", cartItem });
+      } else {
+        const cartItem = await prisma.cart.create({
+          data: {
+            quantity: quantity,
+            productID: product_id,
+            total: checkProduct.price * quantity,
+            user_id,
+          },
+        });
+        res.json({ message: "Product added to cart", cartItem });
+      }
+    } catch (error) {
+      next(error);
     }
   }
 );
@@ -66,7 +70,7 @@ router.get(
   "/cart",
   authToken,
   authorizePermission(Permission.BROWSE_CARTS),
-  async (req, res) => {
+  async (req, res, next) => {
     try {
       const user_id = req.user.id;
       const cart = await prisma.cart.findMany({
@@ -81,8 +85,7 @@ router.get(
 
       res.json({ total, cart });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Internal Server Error" });
+      next(error);
     }
   }
 );
@@ -92,17 +95,16 @@ router.delete(
   "/cart",
   authToken,
   authorizePermission(Permission.DELETE_CART),
-  async (req, res) => {
-    const user_id = req.user.id;
+  async (req, res, next) => {
     try {
+      const user_id = req.user.id;
       await prisma.cart.deleteMany({
         where: { user_id: user_id },
       });
 
       res.json({ message: "Cart emptied" });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Internal Server Error" });
+      next(error);
     }
   }
 );
@@ -112,10 +114,23 @@ router.delete(
   "/cart/:cartId",
   authToken,
   authorizePermission(Permission.DELETE_CART),
-  async (req, res) => {
-    const cartId = parseInt(req.params.cartId);
-    const user_id = req.user.id;
+  async (req, res, next) => {
     try {
+      const cartId = parseInt(req.params.cartId);
+      const user_id = req.user.id;
+
+      // Check if the product exists in the cart
+      const cartItem = await prisma.cart.findFirst({
+        where: {
+          id: cartId,
+          user_id: user_id,
+        },
+      });
+
+      if (!cartItem) {
+        return res.status(404).json({ message: "Product not found in cart" });
+      }
+
       await prisma.cart.delete({
         where: {
           id: cartId,
@@ -125,7 +140,7 @@ router.delete(
 
       res.json({ message: "Product removed from cart" });
     } catch (error) {
-      res.status(404).json({ message: "Product not found in cart" });
+      next(error);
     }
   }
 );
