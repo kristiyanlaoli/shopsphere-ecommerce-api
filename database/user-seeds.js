@@ -1,8 +1,7 @@
 import { faker } from '@faker-js/faker'
 import bcrypt from 'bcrypt'
-import { config } from 'dotenv'
 import prisma from '../app/utils/prisma.js'
-
+import { config } from 'dotenv'
 config()
 
 const bcryptRound = Number(process.env.BCRYPT_ROUND)

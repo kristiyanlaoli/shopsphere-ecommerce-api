@@ -3,7 +3,7 @@ import {
   Role,
   Permission,
   PermissionAssignment,
-} from "../app/authorization.js";
+} from "../app/utils/authorization.js";
 
 const main = async () => {
   await prisma.user.deleteMany();
