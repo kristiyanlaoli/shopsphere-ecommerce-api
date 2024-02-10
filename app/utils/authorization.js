@@ -21,6 +21,8 @@ export const Permission = {
   EDIT_CATEGORY: "edit_category",
   ADD_CATEGORY: "add_category",
   DELETE_CATEGORY: "delete_category",
+
+  ADD_ORDER: "add_order",
 };
 
 // Permission.BROWSE_PRODUCTS
@@ -51,5 +53,7 @@ export const PermissionAssignment = {
     Permission.EDIT_CART,
     Permission.ADD_CART,
     Permission.DELETE_CART,
+
+    Permission.ADD_ORDER,
   ],
 };
