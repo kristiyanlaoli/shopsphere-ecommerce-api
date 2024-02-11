@@ -67,6 +67,7 @@ model Order {
   id         Int       @id @default(autoincrement())
   user_id    Int
   total      Float
+  status     String    @default("Pending")
   created_at DateTime? @default(now())
 
   items OrderItem[]
