@@ -11,29 +11,30 @@ datasource db {
 }
 
 model Product {
-  id          Int               @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   name        String
   price       Float
   description String
   image       String
-  category_id CategoryProduct[]
   inventory   Int
   rating      Float?
   seller_id   Int
-  created_at  DateTime          @default(now())
-  updated_at  DateTime          @updatedAt
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
 
-  user User @relation(fields: [seller_id], references: [id])
+  category_id CategoryProduct[]
+  user        User              @relation(fields: [seller_id], references: [id])
 
   @@map("products")
 }
 
 model Category {
-  id         Int               @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   name       String
-  products   CategoryProduct[]
-  created_at DateTime          @default(now())
-  updated_at DateTime          @updatedAt
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  products CategoryProduct[]
 
   @@map("categories")
 }
@@ -63,10 +64,13 @@ model Cart {
 }
 
 model Order {
-  id         Int         @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
+  user_id    Int
   total      Float
-  created_at DateTime?   @default(now())
-  items      OrderItem[]
+  created_at DateTime? @default(now())
+
+  items OrderItem[]
+  user  User        @relation(fields: [user_id], references: [id])
 
   @@map("orders")
 }
@@ -96,6 +100,7 @@ model User {
   tokens   Token[]
   products Product[]
   carts    Cart[]
+  orders   Order[]
   role     Role      @relation(fields: [role_id], references: [id])
 
   @@map("users")

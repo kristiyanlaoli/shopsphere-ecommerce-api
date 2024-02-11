@@ -6,6 +6,10 @@ import {
 } from "../app/utils/authorization.js";
 
 const main = async () => {
+  await prisma.cart.deleteMany();
+  await prisma.token.deleteMany();
+  await prisma.categoryProduct.deleteMany();
+  await prisma.product.deleteMany();
   await prisma.user.deleteMany();
   await prisma.permissionRole.deleteMany();
   await prisma.role.deleteMany();

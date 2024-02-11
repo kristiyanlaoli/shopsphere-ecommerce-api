@@ -11,7 +11,11 @@ router.post(
   authorizePermission(Permission.ADD_ORDER),
   async (req, res) => {
     try {
-      const cart = await prisma.cart.findMany();
+      const cart = await prisma.cart.findMany({
+        where: {
+          user_id: req.user.id,
+        },
+      });
 
       const total = cart.reduce((sum, item) => sum + item.total, 0);
 
@@ -19,6 +23,7 @@ router.post(
       const order = await prisma.order.create({
         data: {
           total,
+          user_id: req.user.id,
           created_at: new Date(), // Set the current timestamp
           items: {
             createMany: {
@@ -33,7 +38,11 @@ router.post(
       });
 
       // Clear the cart after the order is placed
-      await prisma.cart.deleteMany({});
+      await prisma.cart.deleteMany({
+        where: {
+          user_id: req.user.id,
+        },
+      });
 
       res.json({ message: "Order placed successfully", order });
     } catch (error) {
