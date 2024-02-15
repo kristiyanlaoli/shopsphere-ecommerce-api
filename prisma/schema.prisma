@@ -67,7 +67,7 @@ model Order {
   id         Int       @id @default(autoincrement())
   user_id    Int
   total      Float
-  status     String    @default("Pending")
+  status     String    @default("Unpaid")
   created_at DateTime? @default(now())
 
   items OrderItem[]
@@ -95,6 +95,7 @@ model User {
   password   String
   is_blocked Boolean  @default(false)
   role_id    Int
+  image      String?
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 

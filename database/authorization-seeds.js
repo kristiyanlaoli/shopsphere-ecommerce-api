@@ -6,10 +6,14 @@ import {
 } from "../app/utils/authorization.js";
 
 const main = async () => {
+  // Manual beberapa tabel di database atau:
+
   await prisma.cart.deleteMany();
   await prisma.token.deleteMany();
   await prisma.categoryProduct.deleteMany();
   await prisma.product.deleteMany();
+  await prisma.orderItem.deleteMany();
+  await prisma.order.deleteMany();
   await prisma.user.deleteMany();
   await prisma.permissionRole.deleteMany();
   await prisma.role.deleteMany();

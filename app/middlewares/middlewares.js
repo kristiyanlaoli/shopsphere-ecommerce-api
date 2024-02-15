@@ -18,6 +18,7 @@ export const authToken = async (req, res, next) => {
           name: true,
           is_blocked: true,
           role_id: true,
+          image: true,
         },
       },
     },

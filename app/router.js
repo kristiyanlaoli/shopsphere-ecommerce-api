@@ -6,6 +6,7 @@ import orderRouters from "./routers/order-route.js";
 import loginRouters from "./routers/login.js";
 import sigupRouters from "./routers/signup.js";
 import paymentRouters from "./routers/payment-route.js";
+import profileRouters from "./routers/profile-route.js";
 const router = Router();
 
 router.use("/api", productRouters);
@@ -15,5 +16,6 @@ router.use("/api", orderRouters);
 router.use("/api", loginRouters);
 router.use("/api", sigupRouters);
 router.use("/api", paymentRouters);
+router.use("/api", profileRouters);
 
 export default router;

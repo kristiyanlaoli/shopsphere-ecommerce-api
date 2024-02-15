@@ -16,13 +16,11 @@ export const Permission = {
   ADD_CART: "add_cart",
   DELETE_CART: "delete_cart",
 
-  BROWSE_CATEGORIES: "browse_categories",
-  READ_CATEGORY: "read_category",
-  EDIT_CATEGORY: "edit_category",
-  ADD_CATEGORY: "add_category",
-  DELETE_CATEGORY: "delete_category",
-
   ADD_ORDER: "add_order",
+
+  ADD_PAYMENT: "add_payment",
+
+  ADD_ROLESELLER: "add_roleseller",
 };
 
 // Permission.BROWSE_PRODUCTS
@@ -34,19 +32,22 @@ export const PermissionAssignment = {
     Permission.ADD_PRODUCT,
     Permission.DELETE_PRODUCT,
 
-    Permission.BROWSE_CATEGORIES,
-    Permission.READ_CATEGORY,
-    Permission.EDIT_CATEGORY,
-    Permission.ADD_CATEGORY,
-    Permission.DELETE_CATEGORY,
+    Permission.BROWSE_CARTS,
+    Permission.READ_CART,
+    Permission.EDIT_CART,
+    Permission.ADD_CART,
+    Permission.DELETE_CART,
+
+    Permission.ADD_ORDER,
+
+    Permission.ADD_PAYMENT,
   ],
 
   [Role.REGULAR_USER]: [
+    Permission.ADD_ROLESELLER,
+
     Permission.BROWSE_PRODUCTS,
     Permission.READ_PRODUCT,
-
-    Permission.BROWSE_CATEGORIES,
-    Permission.READ_CATEGORY,
 
     Permission.BROWSE_CARTS,
     Permission.READ_CART,
@@ -55,5 +56,7 @@ export const PermissionAssignment = {
     Permission.DELETE_CART,
 
     Permission.ADD_ORDER,
+
+    Permission.ADD_PAYMENT,
   ],
 };
