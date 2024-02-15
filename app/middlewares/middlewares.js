@@ -61,11 +61,6 @@ export const authorizePermission = (permission) => {
       (record) => record.permission.name
     );
 
-    // console.log("permissionsRecords", permissionRecords);
-    // console.log("req.user.role_id ", req.user.role_id);
-    // console.log("looking for permission", permission);
-    // console.log("in permissions", permissions);
-
     if (!permissions.includes(permission)) {
       return res.status(403).json({
         message: "Forbidden",
@@ -77,7 +72,7 @@ export const authorizePermission = (permission) => {
 };
 
 export async function validateProductId(req, res, next) {
-  const product_id = Number(req.params.id);
+  const product_id = Number(req.params.id) || Number(req.body.product_id);
 
   if (isNaN(product_id)) {
     return res.status(400).json({ message: "id must be a number" });
@@ -96,13 +91,24 @@ export async function validateProductId(req, res, next) {
   next();
 }
 
-export const checkSeller = async (req, res, next) => {
+export const checkProductSeller = async (req, res, next) => {
   const { product_id } = req;
   const product = await prisma.product.findUnique({
     where: { id: product_id },
   });
   if (product.seller_id !== req.user.id) {
     return res.status(401).json({ message: "You are not authorized" });
+  }
+  next();
+};
+
+export const checkSellerBuysHisProduct = async (req, res, next) => {
+  const { product_id } = req;
+  const product = await prisma.product.findUnique({
+    where: { id: product_id },
+  });
+  if (product.seller_id === req.user.id) {
+    return res.status(403).json({ message: "Seller can not buy his product" });
   }
   next();
 };

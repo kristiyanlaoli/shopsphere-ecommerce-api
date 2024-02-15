@@ -1,7 +1,12 @@
 import { Router } from "express";
 import prisma from "../utils/prisma.js";
 import { Permission } from "../utils/authorization.js";
-import { authToken, authorizePermission } from "../middlewares/middlewares.js";
+import {
+  authToken,
+  authorizePermission,
+  checkSellerBuysHisProduct,
+  validateProductId,
+} from "../middlewares/middlewares.js";
 import { validateCartRequest } from "../middlewares/validator.js";
 const router = Router();
 
@@ -11,10 +16,12 @@ router.post(
   authToken,
   authorizePermission(Permission.ADD_CART),
   validateCartRequest,
+  validateProductId,
+  checkSellerBuysHisProduct,
   async (req, res, next) => {
     try {
       const user_id = req.user.id;
-      const product_id = Number(req.body.product_id);
+      const product_id = req.product_id;
       const quantity = Number(req.body.quantity);
 
       // check if product is already in cart

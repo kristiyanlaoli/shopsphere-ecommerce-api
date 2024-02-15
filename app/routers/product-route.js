@@ -6,7 +6,7 @@ import validateProduct from "../utils/validateProduct.js";
 import {
   authToken,
   authorizePermission,
-  checkSeller,
+  checkProductSeller,
   validateProductId,
 } from "../middlewares/middlewares.js";
 
@@ -21,7 +21,9 @@ router.get("/products", async (req, res) => {
 // Get product by id
 router.get("/products/:id", validateProductId, async (req, res) => {
   const { product_id } = req;
-  const product = await prisma.product.findUnique({ where: { id: product_id } });
+  const product = await prisma.product.findUnique({
+    where: { id: product_id },
+  });
   return res.status(200).json(product);
 });
 
@@ -56,7 +58,7 @@ router.put(
   validateProductId,
   authToken,
   authorizePermission(Permission.EDIT_PRODUCT),
-  checkSeller,
+  checkProductSeller,
   async (req, res) => {
     try {
       //validate product
@@ -93,7 +95,7 @@ router.delete(
   validateProductId,
   authToken,
   authorizePermission(Permission.DELETE_PRODUCT),
-  checkSeller,
+  checkProductSeller,
   async (req, res) => {
     // delete category_id of product from categoryProduct_pivot_tabel
     const { product_id } = req;

@@ -18,5 +18,5 @@
 11. Menampilkan product sesuai seller_id 👋
 12. add to cart jika quantitynya negatif = mengurangi product di cart. Jika product di kurngi menjadi kurang atau sama dengan nol => product di cart di hapus. ✅
 13. page untuk product
-14. Sller bisa belanja, tapi tidak bisa belanja barangnya sendiri
+14. Sller bisa belanja, tapi tidak bisa belanja barangnya sendiri✅
 15. Set default semuany adalah user buyer belum seller.👋
