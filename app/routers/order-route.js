@@ -30,7 +30,7 @@ router.post(
           items: {
             createMany: {
               data: cart.map((item) => ({
-                product_id: item.productID,
+                product_id: item.product_id,
                 quantity: item.quantity,
                 total: item.total,
               })),

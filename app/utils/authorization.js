@@ -19,8 +19,6 @@ export const Permission = {
   ADD_ORDER: "add_order",
 
   ADD_PAYMENT: "add_payment",
-
-  ADD_ROLESELLER: "add_roleseller",
 };
 
 // Permission.BROWSE_PRODUCTS
@@ -44,8 +42,6 @@ export const PermissionAssignment = {
   ],
 
   [Role.REGULAR_USER]: [
-    Permission.ADD_ROLESELLER,
-
     Permission.BROWSE_PRODUCTS,
     Permission.READ_PRODUCT,
 

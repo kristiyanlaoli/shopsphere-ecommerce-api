@@ -17,71 +17,71 @@ router.post(
       const product_id = Number(req.body.product_id);
       const quantity = Number(req.body.quantity);
 
-        // check if product is already in cart
-        const checkItem = await prisma.cart.findFirst({
-          where: {
-            productID: product_id,
-            user_id: user_id,
-          },
-        });
+      // check if product is already in cart
+      const checkItem = await prisma.cart.findFirst({
+        where: {
+          product_id,
+          user_id,
+        },
+      });
 
-        // check if product exists
-        const checkProduct = await prisma.product.findFirst({
-          where: { id: product_id },
-        });
+      // check if product exists
+      const checkProduct = await prisma.product.findFirst({
+        where: { id: product_id },
+      });
 
-        if (!checkProduct) {
-          return res.status(404).json({ message: "Product not found" });
-        }
+      if (!checkProduct) {
+        return res.status(404).json({ message: "Product not found" });
+      }
 
-        if (checkItem) {
-          const totalQuantity = checkItem.total + checkProduct.price * quantity;
-          const cartQuantity = checkItem.quantity + quantity;
+      if (checkItem) {
+        const totalQuantity = checkItem.total + checkProduct.price * quantity;
+        const cartQuantity = checkItem.quantity + quantity;
 
-          if (cartQuantity > checkProduct.inventory) {
-            return res.status(400).json({
-              message: `Only ${checkProduct.inventory} items left in stock`,
-            });
-          } else if (cartQuantity < 1) {
-            await prisma.cart.delete({
-              where: {
-                id: checkItem.id,
-              },
-            });
-            return res.json({ message: "Product removed from cart" });
-          } else {
-            const cartItem = await prisma.cart.update({
-              where: { id: checkItem.id },
-              data: {
-                quantity: cartQuantity,
-                productID: product_id,
-                total: totalQuantity,
-                user_id,
-              },
-            });
-            return res.json({ message: "Product added to cart", cartItem });
-          }
+        if (cartQuantity > checkProduct.inventory) {
+          return res.status(400).json({
+            message: `Only ${checkProduct.inventory} items left in stock`,
+          });
+        } else if (cartQuantity < 1) {
+          await prisma.cart.delete({
+            where: {
+              id: checkItem.id,
+            },
+          });
+          return res.json({ message: "Product removed from cart" });
         } else {
-          if (quantity > checkProduct.inventory) {
-            return res.status(400).json({
-              message: `Only ${checkProduct.inventory} items left in stock`,
-            });
-          } else if (quantity < 1) {
-            return res.json({
-              message: "The reduced product is not in the cart",
-            });
-          } else {
-            const cartItem = await prisma.cart.create({
-              data: {
-                quantity: quantity,
-                productID: product_id,
-                total: checkProduct.price * quantity,
-                user_id,
-              },
-            });
-            res.json({ message: "Product added to cart", cartItem });
-          }
+          const cartItem = await prisma.cart.update({
+            where: { id: checkItem.id },
+            data: {
+              quantity: cartQuantity,
+              product_id,
+              total: totalQuantity,
+              user_id,
+            },
+          });
+          return res.json({ message: "Product added to cart", cartItem });
         }
+      } else {
+        if (quantity > checkProduct.inventory) {
+          return res.status(400).json({
+            message: `Only ${checkProduct.inventory} items left in stock`,
+          });
+        } else if (quantity < 1) {
+          return res.json({
+            message: "The reduced product is not in the cart",
+          });
+        } else {
+          const cartItem = await prisma.cart.create({
+            data: {
+              quantity: quantity,
+              product_id,
+              total: checkProduct.price * quantity,
+              user_id,
+            },
+          });
+          res.json({ message: "Product added to cart", cartItem });
+        }
+      }
     } catch (error) {
       next(error);
     }

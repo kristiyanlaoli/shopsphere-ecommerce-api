@@ -51,15 +51,15 @@ model CategoryProduct {
 }
 
 model Cart {
-  id        Int    @id @default(autoincrement())
-  user_id   Int
-  quantity  Int?
-  productID Int?
-  total     Float? @db.Float
+  id         Int    @id @default(autoincrement())
+  user_id    Int
+  quantity   Int?
+  product_id Int?
+  total      Float? @db.Float
 
   user User @relation(fields: [user_id], references: [id])
 
-  @@index([productID], map: "productID")
+  @@index([product_id], map: "product_id")
   @@map("carts")
 }
 
@@ -94,7 +94,7 @@ model User {
   name       String
   password   String
   is_blocked Boolean  @default(false)
-  role_id    Int
+  role_id    Int      @default(2)
   image      String?
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt

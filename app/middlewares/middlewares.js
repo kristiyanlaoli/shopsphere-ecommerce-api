@@ -77,29 +77,29 @@ export const authorizePermission = (permission) => {
 };
 
 export async function validateProductId(req, res, next) {
-  const productId = Number(req.params.id);
+  const product_id = Number(req.params.id);
 
-  if (isNaN(productId)) {
+  if (isNaN(product_id)) {
     return res.status(400).json({ message: "id must be a number" });
   }
 
   const product = await prisma.product.findUnique({
-    where: { id: productId },
+    where: { id: product_id },
   });
 
   if (!product) {
     return res.status(404).json({ message: "Product not found" });
   }
 
-  req.productId = productId;
+  req.product_id = product_id;
 
   next();
 }
 
 export const checkSeller = async (req, res, next) => {
-  const { productId } = req;
+  const { product_id } = req;
   const product = await prisma.product.findUnique({
-    where: { id: productId },
+    where: { id: product_id },
   });
   if (product.seller_id !== req.user.id) {
     return res.status(401).json({ message: "You are not authorized" });

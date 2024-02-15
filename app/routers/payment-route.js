@@ -14,7 +14,7 @@ async function processPayment(paymentDetails) {
 router.post(
   "/payment",
   authToken,
-  authorizePermission(Permission.ADD_CART),
+  authorizePermission(Permission.ADD_PAYMENT),
   async (req, res, next) => {
     try {
       const paymentDetails = req.body;
@@ -22,9 +22,10 @@ router.post(
 
       if (paymentResult.status === "success") {
         const updatedOrder = await prisma.order.update({
-          where: { 
+          where: {
             id: paymentDetails.order_id,
-            user_id: req.user.id },
+            user_id: req.user.id,
+          },
           data: { status: "Processed" },
         });
         res.json({ message: "Payment processed successfully" });

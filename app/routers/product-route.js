@@ -20,8 +20,8 @@ router.get("/products", async (req, res) => {
 
 // Get product by id
 router.get("/products/:id", validateProductId, async (req, res) => {
-  const { productId } = req;
-  const product = await prisma.product.findUnique({ where: { id: productId } });
+  const { product_id } = req;
+  const product = await prisma.product.findUnique({ where: { id: product_id } });
   return res.status(200).json(product);
 });
 
@@ -63,15 +63,15 @@ router.put(
       const { category_id, ...productData } = validateProduct(req.body);
 
       //update product
-      const { productId } = req;
+      const { product_id } = req;
       const updatedproduct = await prisma.product.update({
-        where: { id: productId },
+        where: { id: product_id },
         data: { ...productData, seller_id: req.user.id },
       });
 
       // delete last category_id of product from categoryProduct_pivot_tabel
       await prisma.categoryProduct.deleteMany({
-        where: { product_id: productId },
+        where: { product_id },
       });
 
       // connect new category_id from product to category via categoryProduct_pivot_tabel:
@@ -96,12 +96,12 @@ router.delete(
   checkSeller,
   async (req, res) => {
     // delete category_id of product from categoryProduct_pivot_tabel
-    const { productId } = req;
+    const { product_id } = req;
     await prisma.categoryProduct.deleteMany({
-      where: { product_id: productId },
+      where: { product_id },
     });
     const deletedProduct = await prisma.product.delete({
-      where: { id: productId },
+      where: { id: product_id },
     });
 
     return res
