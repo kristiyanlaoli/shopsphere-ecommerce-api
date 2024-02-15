@@ -10,9 +10,11 @@ router.post(
   authToken,
   authorizePermission(Permission.ADD_ORDER),
   async (req, res) => {
+    const { cart_id } = req.body;
     try {
       const cart = await prisma.cart.findMany({
         where: {
+          id: { in: cart_id },
           user_id: req.user.id,
         },
       });
@@ -40,6 +42,7 @@ router.post(
       // Clear the cart after the order is placed
       await prisma.cart.deleteMany({
         where: {
+          id: { in: cart_id },
           user_id: req.user.id,
         },
       });

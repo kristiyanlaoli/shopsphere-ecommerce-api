@@ -26,7 +26,6 @@ router.get("/search", async (req, res) => {
   });
 
   const productIds = categoryProducts.map((cp) => cp.product_id);
-  console.log(productIds);
   // Cari produk berdasarkan nama, deskripsi, dan ID produk
   const products = await prisma.product.findMany({
     where: {
