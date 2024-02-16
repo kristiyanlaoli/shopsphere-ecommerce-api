@@ -1,9 +1,16 @@
 export const Role = {
+  ADMINISTRATOR: "administrator",
   SELLER: "seller",
   REGULAR_USER: "regular_user",
 };
 
 export const Permission = {
+  BROWSE_CATEGORIES: "browse_categories",
+  READ_CATEGORY: "read_category",
+  EDIT_CATEGORY: "edit_category",
+  ADD_CATEGORY: "add_category",
+  DELETE_CATEGORY: "delete_category",
+
   BROWSE_PRODUCTS: "browse_products",
   READ_PRODUCT: "read_product",
   EDIT_PRODUCT: "edit_product",
@@ -11,8 +18,8 @@ export const Permission = {
   DELETE_PRODUCT: "delete_product",
 
   BROWSE_CARTS: "browse_carts",
-  READ_CART: "read_cart", // not used
-  EDIT_CART: "edit_cart", // not used
+  READ_CART: "read_cart",
+  EDIT_CART: "edit_cart",
   ADD_CART: "add_cart",
   DELETE_CART: "delete_cart",
 
@@ -23,6 +30,29 @@ export const Permission = {
 
 // Permission.BROWSE_PRODUCTS
 export const PermissionAssignment = {
+  [Role.ADMINISTRATOR]: [
+    Permission.BROWSE_PRODUCTS,
+    Permission.READ_PRODUCT,
+    Permission.EDIT_PRODUCT,
+    Permission.ADD_PRODUCT,
+    Permission.DELETE_PRODUCT,
+
+    Permission.BROWSE_CARTS,
+    Permission.READ_CART,
+    Permission.EDIT_CART,
+    Permission.ADD_CART,
+    Permission.DELETE_CART,
+
+    Permission.BROWSE_CATEGORIES,
+    Permission.READ_CATEGORY,
+    Permission.EDIT_CATEGORY,
+    Permission.ADD_CATEGORY,
+    Permission.DELETE_CATEGORY,
+
+    Permission.ADD_ORDER,
+
+    Permission.ADD_PAYMENT,
+  ],
   [Role.SELLER]: [
     Permission.BROWSE_PRODUCTS,
     Permission.READ_PRODUCT,
@@ -35,6 +65,9 @@ export const PermissionAssignment = {
     Permission.EDIT_CART,
     Permission.ADD_CART,
     Permission.DELETE_CART,
+
+    Permission.BROWSE_CATEGORIES,
+    Permission.READ_CATEGORY,
 
     Permission.ADD_ORDER,
 
@@ -50,6 +83,9 @@ export const PermissionAssignment = {
     Permission.EDIT_CART,
     Permission.ADD_CART,
     Permission.DELETE_CART,
+
+    Permission.BROWSE_CATEGORIES,
+    Permission.READ_CATEGORY,
 
     Permission.ADD_ORDER,
 
