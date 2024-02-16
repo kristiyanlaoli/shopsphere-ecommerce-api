@@ -39,6 +39,20 @@ router.post(
         },
       });
 
+      // Subtract the product quantity from the inventory
+      for (let i = 0; i < cart.length; i++) {
+        const item = cart[i];
+        await prisma.product.update({
+          where: {
+            id: item.product_id,
+          },
+          data: {
+            inventory: {
+              decrement: item.quantity,
+            },
+          },
+        });
+      }
       // Clear the cart after the order is placed
       await prisma.cart.deleteMany({
         where: {
