@@ -16,13 +16,13 @@ router.post(
   authToken,
   authorizePermission(Permission.ADD_CART),
   validateCartRequest,
-  validateProductId,
   checkSellerBuysHisProduct,
   async (req, res, next) => {
     try {
       const user_id = req.user.id;
       const product_id = req.product_id;
-      const quantity = Number(req.body.quantity);
+      const quantity = req.quantity;
+      const checkProduct = req.product;
 
       // check if product is already in cart
       const checkItem = await prisma.cart.findFirst({
@@ -31,15 +31,6 @@ router.post(
           user_id,
         },
       });
-
-      // check if product exists
-      const checkProduct = await prisma.product.findFirst({
-        where: { id: product_id },
-      });
-
-      if (!checkProduct) {
-        return res.status(404).json({ message: "Product not found" });
-      }
 
       if (checkItem) {
         const totalQuantity = checkItem.total + checkProduct.price * quantity;
@@ -66,7 +57,11 @@ router.post(
               user_id,
             },
           });
-          return res.json({ message: "Product added to cart", cartItem });
+
+          return res.json({
+            message: `Product ${quantity < 1 ? "reduced" : "added"} to cart`,
+            cartItem,
+          });
         }
       } else {
         if (quantity > checkProduct.inventory) {
@@ -74,7 +69,7 @@ router.post(
             message: `Only ${checkProduct.inventory} items left in stock`,
           });
         } else if (quantity < 1) {
-          return res.json({
+          return res.status(400).json({
             message: "The reduced product is not in the cart",
           });
         } else {
@@ -106,9 +101,10 @@ router.get(
       const cart = await prisma.cart.findMany({
         where: { user_id },
       });
+      const [checkCart] = cart;
 
-      if (!cart) {
-        return res.json({ message: "Cart is empty" });
+      if (!checkCart) {
+        return res.status(404).json({ message: "Cart is empty" });
       }
 
       const total = cart.reduce((sum, item) => sum + item.total, 0);
@@ -168,7 +164,7 @@ router.delete(
         },
       });
 
-      res.json({ message: "Product removed from cart" });
+      res.status(200).json({ message: "Product removed from cart" });
     } catch (error) {
       next(error);
     }

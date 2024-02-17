@@ -38,8 +38,6 @@ export const PermissionAssignment = {
     Permission.DELETE_PRODUCT,
 
     Permission.BROWSE_CARTS,
-    Permission.READ_CART,
-    Permission.EDIT_CART,
     Permission.ADD_CART,
     Permission.DELETE_CART,
 
@@ -61,8 +59,6 @@ export const PermissionAssignment = {
     Permission.DELETE_PRODUCT,
 
     Permission.BROWSE_CARTS,
-    Permission.READ_CART,
-    Permission.EDIT_CART,
     Permission.ADD_CART,
     Permission.DELETE_CART,
 
@@ -79,8 +75,6 @@ export const PermissionAssignment = {
     Permission.READ_PRODUCT,
 
     Permission.BROWSE_CARTS,
-    Permission.READ_CART,
-    Permission.EDIT_CART,
     Permission.ADD_CART,
     Permission.DELETE_CART,
 

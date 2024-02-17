@@ -1,3 +1,4 @@
+import prisma from "../utils/prisma.js";
 const validateTokenRequest = (req, res, next) => {
   const errors = {};
 
@@ -27,21 +28,25 @@ const validateTokenRequest = (req, res, next) => {
 
 export default validateTokenRequest;
 
-export const validateCartRequest = (req, res, next) => {
+export const validateCartRequest = async (req, res, next) => {
   const product_id = Number(req.body.product_id);
   const quantity = Number(req.body.quantity);
-  const errors = {};
 
-  if (!product_id) {
-    errors.product_id = "Must be a valid product_id";
+  if (!product_id || !quantity) {
+    return res
+      .status(400)
+      .json({ message: "Must be a valid product_id and quantity" });
   }
+  // check if product exists
+  const checkProduct = await prisma.product.findFirst({
+    where: { id: product_id },
+  });
 
-  if (!quantity) {
-    errors.quantity = "Must be a valid quantity";
+  if (!checkProduct) {
+    return res.status(404).json({ message: "Product not found" });
   }
-
-  if (Object.keys(errors).length > 0) {
-    return res.status(422).json({ errors });
-  }
+  req.product_id = product_id;
+  req.quantity = quantity;
+  req.product = checkProduct;
   next();
 };
