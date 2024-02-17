@@ -21,6 +21,10 @@ router.post(
 
       const total = cart.reduce((sum, item) => sum + item.total, 0);
 
+      if (total === 0) {
+        return res.status(400).json({ message: "Cart is empty" });
+      }
+
       // Save the order details to the 'orders' table
       const order = await prisma.order.create({
         data: {
@@ -62,6 +66,29 @@ router.post(
       });
 
       res.status(200).json({ message: "Order placed successfully", order });
+    } catch (error) {
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+);
+
+// Show Order
+router.get(
+  "/order",
+  authToken,
+  authorizePermission(Permission.ADD_ORDER),
+  async (req, res) => {
+    try {
+      const orders = await prisma.order.findMany({
+        where: { user_id: req.user.id },
+        include: { items: true },
+      });
+
+      if (orders.length === 0) {
+        return res.status(404).json({ message: "No order found" });
+      }
+
+      res.status(200).json({ orders });
     } catch (error) {
       res.status(500).json({ error: "Internal Server Error" });
     }
