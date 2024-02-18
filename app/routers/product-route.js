@@ -14,17 +14,58 @@ const router = Router();
 
 // Get all product
 router.get("/products", async (req, res) => {
-  const products = await prisma.product.findMany();
-  return res.status(200).json(products);
+  const products = await prisma.product.findMany({
+    include: {
+      category_id: {
+        select: {
+          category: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  // Map the products to include category names and remove category_id
+  const productsWithCategoryNames = products.map((product) => {
+    const productWithCategoryNames = {
+      ...product,
+      category: product.category_id.map((cp) => cp.category.name),
+    };
+    delete productWithCategoryNames.category_id;
+    return productWithCategoryNames;
+  });
+
+  return res.status(200).json(productsWithCategoryNames);
 });
 
-// Get product by id
 router.get("/products/:id", validateProductId, async (req, res) => {
   const { product_id } = req;
   const product = await prisma.product.findUnique({
     where: { id: product_id },
+    include: {
+      category_id: {
+        select: {
+          category: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
   });
-  return res.status(200).json(product);
+
+  // Map the product to include category names and remove category_id
+  const productWithCategoryNames = {
+    ...product,
+    category: product.category_id.map((cp) => cp.category.name),
+  };
+  delete productWithCategoryNames.category_id;
+
+  return res.status(200).json(productWithCategoryNames);
 });
 
 // Add new product to data
