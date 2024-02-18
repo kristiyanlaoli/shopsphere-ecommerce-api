@@ -23,6 +23,7 @@ export const Permission = {
   ADD_CART: "add_cart",
   DELETE_CART: "delete_cart",
 
+  BROWSE_ORDERS: "browse_orders",
   ADD_ORDER: "add_order",
 
   ADD_PAYMENT: "add_payment",
@@ -47,6 +48,7 @@ export const PermissionAssignment = {
     Permission.ADD_CATEGORY,
     Permission.DELETE_CATEGORY,
 
+    Permission.BROWSE_ORDERS,
     Permission.ADD_ORDER,
 
     Permission.ADD_PAYMENT,
@@ -65,6 +67,7 @@ export const PermissionAssignment = {
     Permission.BROWSE_CATEGORIES,
     Permission.READ_CATEGORY,
 
+    Permission.BROWSE_ORDERS,
     Permission.ADD_ORDER,
 
     Permission.ADD_PAYMENT,
@@ -81,6 +84,7 @@ export const PermissionAssignment = {
     Permission.BROWSE_CATEGORIES,
     Permission.READ_CATEGORY,
 
+    Permission.BROWSE_ORDERS,
     Permission.ADD_ORDER,
 
     Permission.ADD_PAYMENT,

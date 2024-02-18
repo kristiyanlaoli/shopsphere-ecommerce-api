@@ -5,9 +5,8 @@ import {
   authToken,
   authorizePermission,
   checkSellerBuysHisProduct,
-  validateProductId,
 } from "../middlewares/middlewares.js";
-import { validateCartRequest } from "../middlewares/validator.js";
+import validateCartRequest from "../middlewares/cart-middlewares.js";
 const router = Router();
 
 //add product to cart

@@ -2,32 +2,17 @@ import bcrypt from "bcrypt";
 import { Router } from "express";
 import prisma from "../utils/prisma.js";
 import { config } from "dotenv";
-import validateTokenRequest from "../middlewares/validator.js";
+import validateSignupTokenRequest from "../middlewares/signup-middlewares.js";
 config();
 const router = Router();
 const bcryptRound = Number(process.env.BCRYPT_ROUND);
 
-router.post("/signup", validateTokenRequest, async (req, res) => {
-  // Check if email already exists
-  const existingUser = await prisma.user.findUnique({
-    where: {
-      email: req.body.email,
-    },
-  });
-
-  if (existingUser) {
-    return res.status(400).json({ message: "Email already in use" });
-  }
-
+router.post("/signup", validateSignupTokenRequest, async (req, res) => {
   const role = await prisma.role.findUnique({
     where: {
-      name: req.body.role.toUpperCase(),
+      name: "REGULAR_USER",
     },
   });
-
-  if (!role) {
-    return res.status(400).json({ message: "Invalid role" });
-  }
 
   const hashedPassword = bcrypt.hashSync(req.body.password, bcryptRound);
 

@@ -28,7 +28,7 @@ router.post(
           },
           data: { status: "Processed" },
         });
-        res.json({ message: "Payment processed successfully" });
+        res.status(200).json({ message: "Payment processed successfully" });
       } else {
         res.status(400).json({ message: "Payment failed" });
       }

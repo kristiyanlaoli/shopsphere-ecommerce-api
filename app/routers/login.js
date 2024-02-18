@@ -1,36 +1,13 @@
 import { Router } from "express";
-import bcrypt from "bcrypt";
-import validateTokenRequest from "../middlewares/validator.js";
+import validateLoginTokenRequest from "../middlewares/login-middlewares.js";
 import prisma from "../utils/prisma.js";
 import crypto from "crypto";
 
 const router = Router();
 
-router.post("/login", validateTokenRequest, async (req, res) => {
-  //Check Email
-  const user = await prisma.user.findUnique({
-    where: {
-      email: req.body.email,
-    },
-  });
-
-  if (!user) {
-    return res.status(401).json({ message: "Invalid email" });
-  }
-
-  // Check diblok atau enggak
-  if (user.is_blocked) {
-    return res.status(401).json({ message: "User is blocked" });
-  }
-
-  //Check Password
-  const validPassword = bcrypt.compareSync(req.body.password, user.password);
-  if (!validPassword) {
-    return res.status(401).json({ message: "Invalid password" });
-  }
-
-  //Generate Token
-  // memastikan token tidak ada yg sama:
+router.post("/login", validateLoginTokenRequest, async (req, res) => {
+  const user = req.user;
+  //Generate Token dan memastikan token tidak ada yg sama:
   let token;
   do {
     token = crypto.randomBytes(64).toString("base64"); //base64
