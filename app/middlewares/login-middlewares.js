@@ -20,10 +20,6 @@ const validateLoginTokenRequest = async (req, res, next) => {
   if (!req.body.email) {
     errors.email = "Email is required";
   }
-  // validate minimum password
-  if (req.body.password.length < 8) {
-    errors.password = "Password must be at least 8 characters";
-  }
   // Validate password
   if (!req.body.password) {
     errors.password = "Password is required";

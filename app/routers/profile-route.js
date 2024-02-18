@@ -48,12 +48,11 @@ router.put("/profile", authToken, async (req, res) => {
 // Update password
 router.put("/profile/password", authToken, async (req, res) => {
   const { old_password, new_password } = req.body;
-
   // check if password exists
   if (!old_password || !new_password) {
     return res.status(400).json({ message: "Password is required" });
   }
-
+  // check if user valid
   const user = await prisma.user.findUnique({
     where: {
       id: req.user.id,
@@ -63,7 +62,7 @@ router.put("/profile/password", authToken, async (req, res) => {
   if (!user) {
     return res.status(401).json({ message: "Invalid user" });
   }
-
+  // check if password is valid
   const validPassword = bcrypt.compareSync(old_password, user.password);
   if (!validPassword) {
     return res.status(401).json({ message: "Invalid old password" });

@@ -41,6 +41,7 @@ router.get("/products", async (req, res) => {
   return res.status(200).json(productsWithCategoryNames);
 });
 
+// Get product by id
 router.get("/products/:id", validateProductId, async (req, res) => {
   const { product_id } = req;
   const product = await prisma.product.findUnique({
