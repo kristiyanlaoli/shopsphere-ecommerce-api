@@ -88,17 +88,39 @@ router.get("/categories", async (req, res) => {
   res.json(categories);
 });
 
-// Get products by category
+// Get all products in a category
 router.get("/categories/:id", async (req, res) => {
   const { id } = req.params;
   const categoryProducts = await prisma.categoryProduct.findMany({
     where: { category_id: parseInt(id) },
-    include: { product: true },
+    include: {
+      product: {
+        include: {
+          category_id: {
+            select: {
+              category: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   });
 
-  const products = categoryProducts.map((cp) => cp.product);
+  // Map the products to include category names and remove category_id
+  const productsWithCategoryNames = categoryProducts.map((cp) => {
+    const productWithCategoryNames = {
+      ...cp.product,
+      category: cp.product.category_id.map((c) => c.category.name),
+    };
+    delete productWithCategoryNames.category_id;
+    return productWithCategoryNames;
+  });
 
-  res.json(products);
+  res.json(productsWithCategoryNames);
 });
 
 export default router;
