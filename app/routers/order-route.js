@@ -88,6 +88,17 @@ router.get(
         return res.status(404).json({ message: "No order found" });
       }
 
+      //get product details
+      for (let i = 0; i < orders.length; i++) {
+        const items = orders[i].items;
+        for (let j = 0; j < items.length; j++) {
+          const product = await prisma.product.findUnique({
+            where: { id: items[j].product_id },
+          });
+          items[j].product = product;
+        }
+      }
+
       res.status(200).json({ orders });
     } catch (error) {
       res.status(500).json({ error: "Internal Server Error" });
