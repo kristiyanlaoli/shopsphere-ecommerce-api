@@ -11,6 +11,9 @@ router.post(
   authorizePermission(Permission.ADD_ORDER),
   async (req, res) => {
     const { cart_id } = req.body;
+    if (!cart_id) {
+      return res.status(400).json({ message: "Cart id is required" });
+    }
     try {
       const cart = await prisma.cart.findMany({
         where: {
