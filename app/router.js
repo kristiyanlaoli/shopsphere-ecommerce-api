@@ -8,6 +8,8 @@ import sigupRouters from "./routers/signup.js";
 import paymentRouters from "./routers/payment-route.js";
 import profileRouters from "./routers/profile-route.js";
 import categoryRouters from "./routers/category-route.js";
+import process_payment_Routers from "./routers/category-route.js";
+import after_payment_Routers from "./routers/category-route.js";
 const router = Router();
 
 router.use("/api", productRouters);
@@ -19,5 +21,7 @@ router.use("/api", sigupRouters);
 router.use("/api", paymentRouters);
 router.use("/api", profileRouters);
 router.use("/api", categoryRouters);
+router.use("/api", process_payment_Routers);
+router.use("/api", after_payment_Routers);
 
 export default router;
