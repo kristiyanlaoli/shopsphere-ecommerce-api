@@ -11,6 +11,9 @@ router.post(
   authorizePermission(Permission.ADD_ORDER),
   async (req, res) => {
     const { cart_id } = req.body;
+    if (!cart_id) {
+      return res.status(400).json({ message: "Cart id is required" });
+    }
     try {
       const cart = await prisma.cart.findMany({
         where: {
@@ -86,6 +89,17 @@ router.get(
 
       if (orders.length === 0) {
         return res.status(404).json({ message: "No order found" });
+      }
+
+      //get product details
+      for (let i = 0; i < orders.length; i++) {
+        const items = orders[i].items;
+        for (let j = 0; j < items.length; j++) {
+          const product = await prisma.product.findUnique({
+            where: { id: items[j].product_id },
+          });
+          items[j].product = product;
+        }
       }
 
       res.status(200).json({ orders });

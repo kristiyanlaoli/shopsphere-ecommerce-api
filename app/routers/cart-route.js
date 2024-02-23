@@ -100,10 +100,18 @@ router.get(
       const cart = await prisma.cart.findMany({
         where: { user_id },
       });
+      //get product details
+      for (let i = 0; i < cart.length; i++) {
+        const product = await prisma.product.findUnique({
+          where: { id: cart[i].product_id },
+        });
+        cart[i].product = product;
+      }
+
       const [checkCart] = cart;
 
       if (!checkCart) {
-        return res.status(404).json({ message: "Cart is empty" });
+        return res.status(404).json({ message: "Cart is empty!" });
       }
 
       const total = cart.reduce((sum, item) => sum + item.total, 0);
