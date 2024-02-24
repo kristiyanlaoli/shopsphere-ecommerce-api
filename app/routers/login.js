@@ -27,6 +27,9 @@ router.post("/login", validateLoginTokenRequest, async (req, res) => {
       id: user.id,
       email: user.email,
       name: user.name,
+      is_blocked: user.is_blocked,
+      role_id: user.role_id,
+      image: user.image,
     },
   });
 });

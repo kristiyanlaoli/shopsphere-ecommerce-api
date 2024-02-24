@@ -48,6 +48,9 @@ router.put("/profile", authToken, async (req, res) => {
       id: req.user.id,
       email: req.user.email,
       name: req.user.name,
+      is_blocked: req.user.is_blocked,
+      role_id: req.user.role_id,
+      image: req.user.image,
     },
   });
 });
@@ -58,6 +61,12 @@ router.put("/profile/password", authToken, async (req, res) => {
   // check if password exists
   if (!old_password || !new_password) {
     return res.status(400).json({ message: "Password is required" });
+  }
+  // check password length
+  if (new_password.length < 8) {
+    return res
+      .status(400)
+      .json({ message: "Password must be at least 8 characters" });
   }
   // check if user valid
   const user = await prisma.user.findUnique({
