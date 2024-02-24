@@ -8,8 +8,8 @@ import sigupRouters from "./routers/signup.js";
 import paymentRouters from "./routers/payment-route.js";
 import profileRouters from "./routers/profile-route.js";
 import categoryRouters from "./routers/category-route.js";
-import process_payment_Routers from "./routers/category-route.js";
-import after_payment_Routers from "./routers/category-route.js";
+import process_payment_Routers from "./routers/process_payment.js";
+import after_payment_Routers from "./routers/process_payment.js";
 const router = Router();
 
 router.use("/api", productRouters);

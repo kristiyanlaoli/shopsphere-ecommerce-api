@@ -42,7 +42,14 @@ router.put("/profile", authToken, async (req, res) => {
       role_id,
     },
   });
-  res.json({ message: "Profile updated" });
+  res.json({
+    message: "Profile updated",
+    user: {
+      id: req.user.id,
+      email: req.user.email,
+      name: req.user.name,
+    },
+  });
 });
 
 // Update password
