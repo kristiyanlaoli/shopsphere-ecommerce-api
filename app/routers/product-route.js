@@ -45,12 +45,13 @@ router.get("/products", async (req, res) => {
 router.get("/products/:id", validateProductId, async (req, res) => {
   const { product_id } = req;
   const product = await prisma.product.findUnique({
-    where: { id: product_id },
+    where: { id: Number(product_id) },
     include: {
       category_id: {
         select: {
           category: {
             select: {
+              id: true,
               name: true,
             },
           },
@@ -59,15 +60,51 @@ router.get("/products/:id", validateProductId, async (req, res) => {
     },
   });
 
-  // Map the product to include category names and remove category_id
-  const productWithCategoryNames = {
+  // Map the product to include category names and category ids
+  const productWithCategoryNamesAndIds = {
     ...product,
     category: product.category_id.map((cp) => cp.category.name),
+    category_id: product.category_id.map((cp) => cp.category.id),
   };
-  delete productWithCategoryNames.category_id;
 
-  return res.status(200).json(productWithCategoryNames);
+  return res.status(200).json(productWithCategoryNamesAndIds);
 });
+
+// get products by user id
+router.get(
+  "/myproducts",
+  authToken,
+  authorizePermission(Permission.BROWSE_PRODUCTS),
+  async (req, res) => {
+    const seller_id = req.user.id;
+    const products = await prisma.product.findMany({
+      where: { seller_id },
+      include: {
+        category_id: {
+          select: {
+            category: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Map the products to include category names and remove category_id
+    const productsWithCategoryNames = products.map((product) => {
+      const productWithCategoryNames = {
+        ...product,
+        category: product.category_id.map((cp) => cp.category.name),
+      };
+      delete productWithCategoryNames.category_id;
+      return productWithCategoryNames;
+    });
+
+    return res.status(200).json(productsWithCategoryNames);
+  }
+);
 
 // Add new product to data
 router.post(
@@ -79,7 +116,11 @@ router.post(
       //validate product
       const { category_id, ...productData } = validateProduct(req.body);
       const product = await prisma.product.create({
-        data: { ...productData, seller_id: req.user.id },
+        data: {
+          ...productData,
+          seller_id: req.user.id,
+          origin_id: req.user.city_id,
+        },
       });
 
       // connect category_id from product to category via categoryProduct_pivot_tabel:

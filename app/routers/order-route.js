@@ -75,7 +75,7 @@ router.post(
   }
 );
 
-// Show Order
+// // Show Order with Products Grouped by Seller
 router.get(
   "/order",
   authToken,
@@ -84,14 +84,14 @@ router.get(
     try {
       const orders = await prisma.order.findMany({
         where: { user_id: req.user.id },
-        include: { items: true },
+        include: { items: true }, // Include items without product details
       });
 
       if (orders.length === 0) {
         return res.status(404).json({ message: "No order found" });
       }
 
-      //get product details
+      // Fetch product details for each item in orders
       for (let i = 0; i < orders.length; i++) {
         const items = orders[i].items;
         for (let j = 0; j < items.length; j++) {
@@ -102,7 +102,141 @@ router.get(
         }
       }
 
-      res.status(200).json({ orders });
+      // Group products by seller
+      const ordersWithProductsGroupedBySeller = orders.map((order) => {
+        const groupedProducts = order.items.reduce((acc, item) => {
+          const sellerId = item.product.seller_id;
+          if (!acc[sellerId]) {
+            acc[sellerId] = [];
+          }
+          acc[sellerId].push(item);
+          return acc;
+        }, {});
+
+        const productBySeller = Object.keys(groupedProducts).map(
+          (sellerId) => ({
+            seller_id: parseInt(sellerId),
+            items: groupedProducts[sellerId],
+          })
+        );
+
+        return { ...order, product_by_seller: productBySeller };
+      });
+
+      res.status(200).json({ orders: ordersWithProductsGroupedBySeller });
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+);
+
+// Show Order by seller
+router.get(
+  "/order/seller/:seller_id",
+  authToken,
+  authorizePermission(Permission.ADD_ORDER),
+  async (req, res) => {
+    const { seller_id } = req.params;
+    try {
+      // Get all products sold by the seller
+      const products = await prisma.product.findMany({
+        where: { seller_id: parseInt(seller_id) },
+      });
+
+      // Get all order items that contain the seller's products
+      const orderItems = await prisma.orderItem.findMany({
+        where: {
+          product_id: {
+            in: products.map((product) => product.id),
+          },
+        },
+        include: {
+          order: {
+            include: {
+              user: true, // Include user details
+            },
+          },
+          product: true,
+        },
+      });
+
+      // Group order items by order
+      const orders = orderItems.reduce((acc, item) => {
+        const key = item.order_id;
+        if (!acc[key]) {
+          acc[key] = {
+            ...item.order,
+            items: [item],
+          };
+        } else {
+          acc[key].items.push(item);
+        }
+        return acc;
+      }, {});
+
+      if (Object.keys(orders).length === 0) {
+        return res.status(404).json({ message: "No order found" });
+      }
+
+      res.status(200).json({ message: "Successfull show", orders });
+    } catch (error) {
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+);
+
+// Update receipt number for an order item by seller
+router.post(
+  "/order/seller/:seller_id",
+  authToken,
+  authorizePermission(Permission.ADD_ORDER),
+  async (req, res) => {
+    const { seller_id } = req.params;
+    const { order_id, receipt } = req.body;
+    try {
+      // Get all products sold by the seller
+      const products = await prisma.product.findMany({
+        where: { seller_id: parseInt(seller_id) },
+      });
+
+      // Get all order items for the given order that contain the seller's products
+      const orderItems = await prisma.orderItem.findMany({
+        where: {
+          order_id: parseInt(order_id),
+          product_id: {
+            in: products.map((product) => product.id),
+          },
+        },
+        include: {
+          order: true,
+          product: true,
+        },
+      });
+
+      if (orderItems.length === 0) {
+        return res
+          .status(404)
+          .json({ message: "No order items found for this seller." });
+      }
+
+      // Update the order items with the receipt number
+      const updatedOrderItems = await prisma.orderItem.updateMany({
+        where: {
+          order_id: parseInt(order_id),
+          product_id: {
+            in: products.map((product) => product.id),
+          },
+        },
+        data: {
+          receipt: receipt,
+        },
+      });
+
+      res.status(200).json({
+        message: "Receipt numbers updated successfully.",
+        updatedOrderItems,
+      });
     } catch (error) {
       res.status(500).json({ error: "Internal Server Error" });
     }

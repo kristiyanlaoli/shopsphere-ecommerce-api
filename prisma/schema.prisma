@@ -19,11 +19,13 @@ model Product {
   inventory   Int
   rating      Float?
   seller_id   Int
+  origin_id   Int
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 
   category_id CategoryProduct[]
   user        User              @relation(fields: [seller_id], references: [id])
+  items       OrderItem[]
 
   @@map("products")
 }
@@ -64,11 +66,12 @@ model Cart {
 }
 
 model Order {
-  id         Int       @id @default(autoincrement())
-  user_id    Int
-  total      Float
-  status     String    @default("Unpaid")
-  created_at DateTime? @default(now())
+  id            Int       @id @default(autoincrement())
+  user_id       Int
+  total         Float
+  shipping_cost Float?
+  status        String    @default("Unpaid")
+  created_at    DateTime? @default(now())
 
   items OrderItem[]
   user  User        @relation(fields: [user_id], references: [id])
@@ -77,13 +80,15 @@ model Order {
 }
 
 model OrderItem {
-  id         Int   @id @default(autoincrement())
+  id         Int     @id @default(autoincrement())
   order_id   Int
   product_id Int
   quantity   Int
   total      Float
+  receipt    String?
 
-  order Order @relation(fields: [order_id], references: [id])
+  order   Order   @relation(fields: [order_id], references: [id])
+  product Product @relation(fields: [product_id], references: [id])
 
   @@map("order_items")
 }
@@ -95,7 +100,8 @@ model User {
   password   String
   is_blocked Boolean  @default(false)
   role_id    Int      @default(3)
-  image      String?
+  image      String   @default("https://www.worldfuturecouncil.org/wp-content/uploads/2020/02/dummy-profile-pic-300x300-1-180x180.png")
+  city_id    Int
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 

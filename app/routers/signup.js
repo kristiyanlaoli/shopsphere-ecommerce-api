@@ -22,6 +22,7 @@ router.post("/signup", validateSignupTokenRequest, async (req, res) => {
       password: hashedPassword,
       name: req.body.name,
       role_id: role.id,
+      city_id: req.body.city_id,
     },
   });
 
